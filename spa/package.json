@@ -1,0 +1,36 @@
+{
+  "name": "basicspa",
+  "version": "2.0.0",
+  "description": "An SPA using the OIDC Client security library and a full OAuth lifecycle",
+  "main": "index.ts",
+  "keywords": [],
+  "author": "Gary Archer",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "npx eslint . --ignore-pattern dist",
+    "start": "npm run clean && webpack --config webpack/webpack.config.dev.mjs --watch",
+    "build": "npm run clean && webpack --config webpack/webpack.config.prod.mjs",
+    "clean": "rm -rf dist/*bundle*"
+  },
+  "dependencies": {
+    "axios": "^1.7.4",
+    "mustache": "^4.2.0",
+    "oidc-client-ts": "^3.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.8.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/mustache": "^4.2.5",
+    "eslint": "^9.8.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.0.0",
+    "webpack": "^5.93.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^6.0.1"
+  }
+}

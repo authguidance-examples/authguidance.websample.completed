@@ -1,0 +1,7 @@
+.gitignore
+node_modules
+resources
+/api/certs
+/spa/dist/*
+!/spa/dist/loggedout.js
+.DS_Store

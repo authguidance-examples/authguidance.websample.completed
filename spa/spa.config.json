@@ -1,0 +1,14 @@
+{
+    "app": {
+        "apiBaseUrl":             "https://api.authsamples-dev.com/api"
+    },
+    "oauth": {
+        "provider":               "cognito",
+        "authority":              "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_CuhLeqiE9",
+        "clientId":               "hje94a2jj3lgkobkh57ikenhh",
+        "redirectUri":            "https://www.authsamples-dev.com/spa",
+        "postLogoutRedirectUri":  "https://www.authsamples-dev.com/spa/loggedout.html",
+        "scope":                  "openid profile https://api.authsamples.com/investments",
+        "customLogoutEndpoint":   "https://login.authsamples.com/logout"
+    }
+}
