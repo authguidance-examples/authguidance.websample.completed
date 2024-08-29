@@ -7,15 +7,15 @@
 
 ## Overview
 
-A sample focused on the following OAuth areas for SPAs and APIs:
+An OAuth code sample to extend the [initial code sample](https://github.com/gary-archer/oauth.websample1) with the following behaviors:
 
-- The SPA uses the traditional OpenID connect flow, with session management features
-- The API authorizes access to data using claims from multiple data sources
+- The SPA uses the traditional OpenID connect flow, with session management features.
+- The API comsines claims-based authorization with finer-grained business permissions.
+- The SPA and API use user attributes from both the OpenID Connect userinfo endpoint and its API.
 
 ## Views
 
-The SPA is a simple UI with some basic navigation between views, to render fictional resources.\
-The data is returned from an API that authorizes using claims from multiple sources.
+The SPA is a simple UI with some basic navigation between views, to render fictional investment resources.
 
 ![SPA Views](./images/views.png)
 
@@ -27,7 +27,7 @@ First ensure that Node.js 20+ is installed, then run the build script:
 ./build.sh
 ```
 
-Custom development domains are used so you must add these entries to your hosts file:
+You must use custom development domains and add these DNS entries to your hosts file:
 
 ```
 127.0.0.1 localhost www.authsamples-dev.com api.authsamples-dev.com
@@ -45,7 +45,7 @@ Then run the following script to run the code for both SPA and API:
 ./run.sh
 ```
 
-The browser is invoked and you can sign in with my AWS test credentials:
+The system browser runs and you can sign in with my AWS test credentials:
 
 - User: `guestuser@example.com`
 - Password: `GuestPassword1`
@@ -58,18 +58,18 @@ You can then test all lifecycle operations, including token refresh, multi tab b
 
 ## 2021 Security Update
 
-- In 2021 it is instead recommended to keep tokens out of the browser, using a Backend for Frontend
-- See the [Final SPA Code Sample](https://github.com/gary-archer/oauth.websample.final) for an API driven implementation
+$\color{red}{\textsf{The initial SPA uses OAuth tokens in JavaScript code, as the simplest way to get integrated.}}$\
+$\color{red}{\textsf{In 2021 it is instead recommended to keep tokens out of the browser to limit the impact of XSS exploits.}}$\
+See the [Final SPA Code Sample](https://github.com/gary-archer/oauth.websample.final) for a more secure implementation.
 
 ## Programming Languages
 
-* Plain TypeScript is used for the SPA, to explain OAuth behaviour in the simplest way
-* Node.js and TypeScript are used to implement the API
+* The SPA and its views use plain TypeScript code.
+* The API uses Node.js and TypeScript.
 
 ## Infrastructure
 
-* Express is used to host both the API and the SPA content
-* AWS Cognito is used as the default Authorization Server
-* The [oidc-client-ts](https://github.com/authts/oidc-client-ts) library is used by the SPA to implement OpenID Connect
-* The [jose](https://github.com/panva/jose) library is used by the API to validate JWT access tokens
-* The [node-cache](https://github.com/mpneuried/nodecache) library is used to cache extra claims, when access tokens are first received
+* Express is used as the HTTP server for both the API and the SPA's web static content.
+* The SPA uses the [oidc-client-ts](https://github.com/authts/oidc-client-ts) library to implement OpenID Connect.
+* The API uses the [jose](https://github.com/panva/jose) library to validate JWT access tokens.
+* AWS Cognito is the default authorization server for the SPA and API.
