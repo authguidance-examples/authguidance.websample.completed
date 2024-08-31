@@ -33,7 +33,7 @@ You must use custom development domains and add these DNS entries to your hosts 
 127.0.0.1 localhost www.authsamples-dev.com api.authsamples-dev.com
 ```
 
-Next configure [Browser SSL Trust](https://apisandclients.com/posts/developer-ssl-setup](http://localhost:3000/posts/developer-ssl-setup#trust-a-root-certificate-in-browsers) for the SSL root certificate:
+Next configure [Browser SSL Trust](http://localhost:3000/posts/developer-ssl-setup#trust-a-root-certificate-in-browsers) for the SSL root certificate:
 
 ```
 ./api/certs/localhost/authsamples-dev.com.ca.crt
