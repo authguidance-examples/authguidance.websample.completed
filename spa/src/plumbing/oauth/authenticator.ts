@@ -160,6 +160,7 @@ export class Authenticator {
                     const user = await this._userManager.signinRedirectCallback();
 
                     // Remove the refresh token if using iframe based renewal
+                    // It remains unsatisfactory that the SPA receives a refresh token
                     if (this._configuration.provider !== 'cognito') {
                         user.refresh_token = '';
                     }
@@ -246,6 +247,16 @@ export class Authenticator {
     }
 
     /*
+     * Clear data when the session expires or the user logs out
+     */
+    public async clearLoginState(): Promise<void> {
+
+        await this._userManager.removeUser();
+        this._loginTime = null;
+        HtmlStorageHelper.isLoggedIn = false;
+    }
+
+    /*
      * This method is for testing only, to make the access token in storage act like it has expired
      */
     public async expireAccessToken(): Promise<void> {
@@ -270,7 +281,7 @@ export class Authenticator {
 
             // Redirect on an iframe using the authorization server session cookie and prompt=none
             // This instructs the authorization server to not render the login page on the iframe
-            // If the request fails there should be a login_required error returned from the Authorization Server
+            // If the request fails there should be a login_required error returned from the authorization server
             await this._userManager.signinSilent();
 
         } catch (e: any) {
@@ -343,15 +354,5 @@ export class Authenticator {
                 throw api401Error;
             }
         }
-    }
-
-    /*
-     * Clear data when the session expires or the user logs out
-     */
-    public async clearLoginState(): Promise<void> {
-
-        await this._userManager.removeUser();
-        this._loginTime = null;
-        HtmlStorageHelper.isLoggedIn = false;
     }
 }

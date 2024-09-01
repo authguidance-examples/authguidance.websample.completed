@@ -3,7 +3,7 @@
 ################################################################
 # A script to spin up the code sample, to be run from a terminal
 # Open source libraries are used by the SPA and API
-# AWS Cognito is used as the default Authorization Server
+# AWS Cognito is used as the default authorization server
 ################################################################
 
 #
