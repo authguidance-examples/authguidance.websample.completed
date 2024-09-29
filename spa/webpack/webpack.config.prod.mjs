@@ -15,7 +15,7 @@ export default merge(baseConfig, {
     // Pass a variable through to our Web UI to tell it to not display stack traces
     plugins:[
         new webpack.DefinePlugin({
-            SHOW_STACK_TRACE: 'false',
+            IS_DEBUG: 'false',
         }),
     ]
 });
