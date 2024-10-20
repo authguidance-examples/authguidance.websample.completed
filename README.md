@@ -33,7 +33,7 @@ You must use custom development domains and add these DNS entries to your hosts 
 127.0.0.1 localhost www.authsamples-dev.com api.authsamples-dev.com
 ```
 
-Next configure [Browser SSL Trust](https://apisandclients.com/posts/developer-ssl-setup#trust-a-root-certificate-in-browsers) for the SSL root certificate:
+Next configure [Browser SSL Trust](https://github.com/gary-archer/oauth.blog/tree/master/public/posts/developer-ssl-setup.mdx#trust-a-root-certificate-in-browsers) for the SSL root certificate:
 
 ```
 ./api/certs/localhost/authsamples-dev.com.ca.crt
@@ -54,12 +54,12 @@ You can then test all lifecycle operations, including token refresh, multi tab b
 
 ## Further Information
 
-* See the [Updated SPA and API Code Sample](https://apisandclients.com/posts/improved-spa-code-sample-overview) blog post a walkthrough and the key technical points
+* See the [Updated SPA and API Code Sample](https://github.com/gary-archer/oauth.blog/tree/master/public/posts/improved-spa-code-sample-overview.mdx) blog post a walkthrough and the key technical points
 
 ## 2021 Security Update
 
-$\color{red}{\textsf{The initial SPA uses OAuth tokens in JavaScript code, as the simplest way to get integrated.}}$\
-$\color{red}{\textsf{In 2021 the best practice is to keep tokens out of the browser, to limit the impact of XSS exploits.}}$\
+The SPA uses OAuth tokens in JavaScript code, as the simplest way to get integrated.\
+In 2021 the best practice is to keep tokens out of the browser, to limit the impact of XSS exploits.\
 See the [Final SPA Code Sample](https://github.com/gary-archer/oauth.websample.final) for a more secure implementation.
 
 ## Programming Languages
