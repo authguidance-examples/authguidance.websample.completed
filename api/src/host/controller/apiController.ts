@@ -138,7 +138,8 @@ export class ApiController {
     public onException(
         unhandledException: any,
         request: Request,
-        response: Response): void {
+        response: Response,
+        next: NextFunction): void {
 
         const clientError = ExceptionHandler.handleError(unhandledException, response);
         ResponseWriter.writeErrorResponse(response, clientError);

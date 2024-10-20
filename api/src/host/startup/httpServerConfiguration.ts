@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express from 'express';
-import {Application, NextFunction, Request, Response} from 'express';
+import {Application} from 'express';
 import fs from 'fs-extra';
 import https from 'https';
 import {Configuration} from '../configuration/configuration.js';
@@ -35,23 +35,21 @@ export class HttpServerConfiguration {
             origin: this._configuration.api.trustedOrigins,
             maxAge: 86400,
         };
-        this._express.use('/api/*', cors(corsOptions) as any);
-        this._express.use('/api/*', this._apiController.onWriteHeaders);
+        this._express.use('/api/*_', cors(corsOptions));
+        this._express.use('/api/*_', this._apiController.onWriteHeaders);
 
-        // All API requests are authorized first
-        this._express.use('/api/*', this._catch(this._apiLogger.logRequest));
-        this._express.use('/api/*', this._catch(this._apiController.authorizationHandler));
+        // Add cross cutting concerns
+        this._express.use('/api/*_', this._apiLogger.logRequest);
+        this._express.use('/api/*_', this._apiController.authorizationHandler);
 
         // API routes containing business logic
-        this._express.get('/api/userinfo', this._catch(this._apiController.getUserInfo));
-        this._express.get('/api/companies', this._catch(this._apiController.getCompanyList));
-        this._express.get(
-            '/api/companies/:id/transactions',
-            this._catch(this._apiController.getCompanyTransactions));
+        this._express.get('/api/userinfo', this._apiController.getUserInfo);
+        this._express.get('/api/companies', this._apiController.getCompanyList);
+        this._express.get('/api/companies/:id/transactions', this._apiController.getCompanyTransactions);
 
-        // Handle failure scenarios
-        this._express.use('/api/*', this._apiController.onRequestNotFound);
-        this._express.use('/api/*', this._apiController.onException);
+        // Handle errors after routes are defined
+        this._express.use('/api/*_', this._apiController.onRequestNotFound);
+        this._express.use('/api/*_', this._apiController.onException);
     }
 
     /*
@@ -91,21 +89,5 @@ export class HttpServerConfiguration {
                 console.log(`API is listening on HTTP port ${port}`);
             });
         }
-    }
-
-    /*
-     * Deal with Express unhandled promise exceptions during async API requests
-     * https://medium.com/@Abazhenov/using-async-await-in-express-with-node-8-b8af872c0016
-     */
-    private _catch(fn: any): any {
-
-        return (request: Request, response: Response, next: NextFunction) => {
-
-            Promise
-                .resolve(fn(request, response, next))
-                .catch((e) => {
-                    this._apiController.onException(e, request, response);
-                });
-        };
     }
 }
