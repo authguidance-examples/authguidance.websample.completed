@@ -23,18 +23,18 @@ import {ResponseWriter} from '../utilities/responseWriter.js';
  */
 export class ApiController {
 
-    private readonly _configuration: Configuration;
-    private readonly _jwksRetriever: JwksRetriever;
-    private readonly _claimsCache: ClaimsCache;
-    private readonly _httpProxy: HttpProxy;
+    private readonly configuration: Configuration;
+    private readonly jwksRetriever: JwksRetriever;
+    private readonly claimsCache: ClaimsCache;
+    private readonly httpProxy: HttpProxy;
 
     public constructor(configuration: Configuration) {
 
-        this._configuration = configuration;
-        this._httpProxy = new HttpProxy(this._configuration);
-        this._jwksRetriever = new JwksRetriever(this._configuration.oauth, this._httpProxy);
-        this._claimsCache = new ClaimsCache(this._configuration.oauth);
-        this._setupCallbacks();
+        this.configuration = configuration;
+        this.httpProxy = new HttpProxy(this.configuration);
+        this.jwksRetriever = new JwksRetriever(this.configuration.oauth, this.httpProxy);
+        this.claimsCache = new ClaimsCache(this.configuration.oauth);
+        this.setupCallbacks();
     }
 
     /*
@@ -43,9 +43,9 @@ export class ApiController {
     public async authorizationHandler(request: Request, response: Response, next: NextFunction): Promise<void> {
 
         // Wire up authorization related dependencies on every API request
-        const accessTokenValidator = new AccessTokenValidator(this._configuration.oauth, this._jwksRetriever);
+        const accessTokenValidator = new AccessTokenValidator(this.configuration.oauth, this.jwksRetriever);
         const extraClaimsProvider = new ExtraClaimsProvider();
-        const filter = new OAuthFilter(this._claimsCache, accessTokenValidator, extraClaimsProvider);
+        const filter = new OAuthFilter(this.claimsCache, accessTokenValidator, extraClaimsProvider);
 
         // Call the filter to do the work
         const claims = await filter.authorizeRequestAndGetClaims(request);
@@ -61,7 +61,7 @@ export class ApiController {
     public async getUserInfo(request: Request, response: Response): Promise<void> {
 
         // Create a user service and ask it for the user info
-        const claims = this._getClaims(response);
+        const claims = this.getClaims(response);
         const service = new UserInfoService(claims);
         ResponseWriter.writeSuccessResponse(response, 200, service.getUserInfo());
     }
@@ -72,7 +72,7 @@ export class ApiController {
     public async getCompanyList(request: Request, response: Response): Promise<void> {
 
         // Create the service instance and its dependencies on every API request
-        const claims = this._getClaims(response);
+        const claims = this.getClaims(response);
         const reader = new JsonFileReader();
         const repository = new CompanyRepository(reader);
         const service = new CompanyService(repository, claims);
@@ -88,7 +88,7 @@ export class ApiController {
     public async getCompanyTransactions(request: Request, response: Response): Promise<void> {
 
         // Create the service instance and its dependencies on every API request
-        const claims = this._getClaims(response);
+        const claims = this.getClaims(response);
         const reader = new JsonFileReader();
         const repository = new CompanyRepository(reader);
         const service = new CompanyService(repository, claims);
@@ -148,14 +148,14 @@ export class ApiController {
     /*
      * A helper utility to get typed claims
      */
-    private _getClaims(response: Response): ClaimsPrincipal {
+    private getClaims(response: Response): ClaimsPrincipal {
         return response.locals.claims;
     }
 
     /*
      * Set up async callbacks
      */
-    private _setupCallbacks(): void {
+    private setupCallbacks(): void {
         this.authorizationHandler = this.authorizationHandler.bind(this);
         this.getUserInfo = this.getUserInfo.bind(this);
         this.getCompanyList = this.getCompanyList.bind(this);

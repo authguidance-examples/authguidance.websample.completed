@@ -11,12 +11,12 @@ const MAX_ERROR_ID = 99999;
  */
 export class ServerError extends Error {
 
-    private readonly _statusCode: number;
-    private readonly _apiName: string;
-    private readonly _errorCode: string;
-    private readonly _instanceId: number;
-    private readonly _utcTime: string;
-    private _details: any;
+    private readonly statusCode: number;
+    private readonly apiName: string;
+    private readonly errorCode: string;
+    private readonly instanceId: number;
+    private readonly utcTime: string;
+    private details: any;
 
     /*
      * Errors are categorized by error code
@@ -26,12 +26,12 @@ export class ServerError extends Error {
         super(userMessage);
 
         // Give fields their default values
-        this._statusCode = 500;
-        this._apiName = 'BasicApi';
-        this._errorCode = errorCode;
-        this._instanceId = Math.floor(Math.random() * (MAX_ERROR_ID - MIN_ERROR_ID + 1) + MIN_ERROR_ID);
-        this._utcTime = new Date().toISOString();
-        this._details = '';
+        this.statusCode = 500;
+        this.apiName = 'BasicApi';
+        this.errorCode = errorCode;
+        this.instanceId = Math.floor(Math.random() * (MAX_ERROR_ID - MIN_ERROR_ID + 1) + MIN_ERROR_ID);
+        this.utcTime = new Date().toISOString();
+        this.details = '';
 
         // Record the stack trace of the original error
         if (stack) {
@@ -42,12 +42,12 @@ export class ServerError extends Error {
         Object.setPrototypeOf(this, new.target.prototype);
     }
 
-    public get details(): any {
-        return this._details;
+    public getDetails(): any {
+        return this.details;
     }
 
-    public set details(details: any) {
-        this._details = details;
+    public setDetails(details: any): void {
+        this.details = details;
     }
 
     /*
@@ -59,7 +59,7 @@ export class ServerError extends Error {
         };
 
         if (this.details) {
-            serviceError.details =  this._details;
+            serviceError.details = this.details;
         }
 
         // Include the stack trace as an array within the JSON object
@@ -75,7 +75,7 @@ export class ServerError extends Error {
         }
 
         return {
-            statusCode: this._statusCode,
+            statusCode: this.statusCode,
             clientError: this.toClientError().toResponseFormat(),
             serviceError,
         };
@@ -87,10 +87,10 @@ export class ServerError extends Error {
     public toClientError(): ClientError {
 
         // Return the error code to the client
-        const error = new ClientError(this._statusCode, this._errorCode, this.message);
+        const error = new ClientError(this.statusCode, this.errorCode, this.message);
 
         // Also indicate which part of the system, where in logs and when the error occurred
-        error.setExceptionDetails(this._apiName, this._instanceId, this._utcTime);
+        error.setExceptionDetails(this.apiName, this.instanceId, this.utcTime);
         return error;
     }
 }

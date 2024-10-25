@@ -8,10 +8,10 @@ import {DomUtils} from './domUtils';
  */
 export class CompaniesView {
 
-    private readonly _apiClient: ApiClient;
+    private readonly apiClient: ApiClient;
 
     public constructor(apiClient: ApiClient) {
-        this._apiClient = apiClient;
+        this.apiClient = apiClient;
     }
 
     /*
@@ -22,10 +22,10 @@ export class CompaniesView {
         try {
 
             // Try to get data
-            const data = await this._apiClient.getCompanyList();
+            const data = await this.apiClient.getCompanyList();
 
             // Render new content
-            this._renderData(data);
+            this.renderData(data);
 
         } catch (e: any) {
 
@@ -38,7 +38,7 @@ export class CompaniesView {
     /*
      * Render HTML based on the API response
      */
-    private _renderData(data: Company[]): void {
+    private renderData(data: Company[]): void {
 
         // Build a view model from the API data
         const viewModel = {} as any;

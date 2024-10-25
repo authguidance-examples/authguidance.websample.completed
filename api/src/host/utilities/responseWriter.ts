@@ -1,5 +1,5 @@
 import {Response} from 'express';
-import {ClientError} from '../../logic/errors/clientError';
+import {ClientError} from '../../logic/errors/clientError.js';
 
 /*
  * Helper methods to write the response
@@ -23,6 +23,6 @@ export class ResponseWriter {
     public static writeErrorResponse(response: Response, error: ClientError): void {
 
         response.setHeader('content-type', 'application/json');
-        response.status(error.statusCode).send(JSON.stringify(error.toResponseFormat()));
+        response.status(error.getStatusCode()).send(JSON.stringify(error.toResponseFormat()));
     }
 }

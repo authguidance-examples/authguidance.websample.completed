@@ -3,17 +3,17 @@
  */
 export class HtmlStorageHelper {
 
-    private static _prefix = 'basicspa.';
-    private static _loggedInKey = 'loggedin';
-    private static _loggedOutEventKeyName = 'loggedoutEvent';
-    private static _oidcLogLevelKeyName = 'oidc-log-level';
+    private static prefix = 'basicspa.';
+    private static loggedInKey = 'loggedin';
+    private static loggedOutEventKeyName = 'loggedoutEvent';
+    private static oidcLogLevelKeyName = 'oidc-log-level';
 
     /*
      * Return true if the user is logged in
      */
     public static get isLoggedIn(): boolean {
 
-        const key = `${HtmlStorageHelper._prefix}${HtmlStorageHelper._loggedInKey}`;
+        const key = `${HtmlStorageHelper.prefix}${HtmlStorageHelper.loggedInKey}`;
         const value = localStorage.getItem(key);
         return value === 'true';
     }
@@ -23,7 +23,7 @@ export class HtmlStorageHelper {
      */
     public static set isLoggedIn(value: boolean) {
 
-        const key = `${HtmlStorageHelper._prefix}${HtmlStorageHelper._loggedInKey}`;
+        const key = `${HtmlStorageHelper.prefix}${HtmlStorageHelper.loggedInKey}`;
         localStorage.setItem(key, String(value));
     }
 
@@ -32,7 +32,7 @@ export class HtmlStorageHelper {
      */
     public static raiseLoggedOutEvent(): void {
 
-        const key = `${HtmlStorageHelper._prefix}${HtmlStorageHelper._loggedOutEventKeyName}`;
+        const key = `${HtmlStorageHelper.prefix}${HtmlStorageHelper.loggedOutEventKeyName}`;
         localStorage.setItem(key, 'raised');
     }
 
@@ -43,7 +43,7 @@ export class HtmlStorageHelper {
 
         if (event.storageArea === localStorage) {
 
-            const key = `${HtmlStorageHelper._prefix}${HtmlStorageHelper._loggedOutEventKeyName}`;
+            const key = `${HtmlStorageHelper.prefix}${HtmlStorageHelper.loggedOutEventKeyName}`;
             return event.key === key && event.newValue === 'raised';
         }
 
@@ -55,7 +55,7 @@ export class HtmlStorageHelper {
      */
     public static clearLoggedOutEvent(): void {
 
-        const key = `${HtmlStorageHelper._prefix}${HtmlStorageHelper._loggedOutEventKeyName}`;
+        const key = `${HtmlStorageHelper.prefix}${HtmlStorageHelper.loggedOutEventKeyName}`;
         localStorage.removeItem(key);
     }
 
@@ -64,7 +64,7 @@ export class HtmlStorageHelper {
      */
     public static get oidcLogLevel(): string {
 
-        const key = `${HtmlStorageHelper._prefix}${HtmlStorageHelper._oidcLogLevelKeyName}`;
+        const key = `${HtmlStorageHelper.prefix}${HtmlStorageHelper.oidcLogLevelKeyName}`;
         return sessionStorage.getItem(key) || '';
     }
 
@@ -73,7 +73,7 @@ export class HtmlStorageHelper {
      */
     public static set oidcLogLevel(value: string) {
 
-        const key = `${HtmlStorageHelper._prefix}${HtmlStorageHelper._oidcLogLevelKeyName}`;
+        const key = `${HtmlStorageHelper.prefix}${HtmlStorageHelper.oidcLogLevelKeyName}`;
         sessionStorage.setItem(key, value);
     }
 }

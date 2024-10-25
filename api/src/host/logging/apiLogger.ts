@@ -8,7 +8,7 @@ import {LogEntry} from './logEntry.js';
  */
 export class ApiLogger {
 
-    private _logger: any = null;
+    private logger: any = null;
 
     /*
      * Create a Winston logger that writes prettified JSON output for developers
@@ -25,13 +25,13 @@ export class ApiLogger {
         };
 
         const transport = new winston.transports.Console(consoleOptions);
-        this._logger = winston.createLogger({
+        this.logger = winston.createLogger({
             transports: [
                 transport,
             ],
         });
 
-        this._setupCallbacks();
+        this.setupCallbacks();
     }
 
     /*
@@ -41,7 +41,7 @@ export class ApiLogger {
 
         const logEntry = new LogEntry();
         logEntry.setError(error);
-        this._logger.error(logEntry.toOutputFormat());
+        this.logger.error(logEntry.toOutputFormat());
     }
 
     /*
@@ -58,9 +58,9 @@ export class ApiLogger {
             logEntry.end(response);
 
             if (logEntry.hasError()) {
-                this._logger.error(logEntry.toOutputFormat());
+                this.logger.error(logEntry.toOutputFormat());
             } else {
-                this._logger.info(logEntry.toOutputFormat());
+                this.logger.info(logEntry.toOutputFormat());
             }
         });
 
@@ -70,7 +70,7 @@ export class ApiLogger {
     /*
      * Ensure that the this parameter is available in the above callback
      */
-    private _setupCallbacks() {
+    private setupCallbacks() {
         this.logRequest = this.logRequest.bind(this);
     }
 }

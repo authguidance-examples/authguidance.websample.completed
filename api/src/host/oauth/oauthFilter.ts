@@ -12,18 +12,18 @@ import {AccessTokenValidator} from './accessTokenValidator.js';
  */
 export class OAuthFilter {
 
-    private readonly _cache: ClaimsCache;
-    private readonly _accessTokenValidator: AccessTokenValidator;
-    private readonly _extraClaimsProvider: ExtraClaimsProvider;
+    private readonly cache: ClaimsCache;
+    private readonly accessTokenValidator: AccessTokenValidator;
+    private readonly extraClaimsProvider: ExtraClaimsProvider;
 
     public constructor(
         cache: ClaimsCache,
         accessTokenValidator: AccessTokenValidator,
         extraClaimsProvider: ExtraClaimsProvider) {
 
-        this._cache = cache;
-        this._accessTokenValidator = accessTokenValidator;
-        this._extraClaimsProvider = extraClaimsProvider;
+        this.cache = cache;
+        this.accessTokenValidator = accessTokenValidator;
+        this.extraClaimsProvider = extraClaimsProvider;
     }
 
     /*
@@ -32,26 +32,26 @@ export class OAuthFilter {
     public async authorizeRequestAndGetClaims(request: Request): Promise<ClaimsPrincipal> {
 
         // First read the access token
-        const accessToken = this._readAccessToken(request);
+        const accessToken = this.readAccessToken(request);
         if (!accessToken) {
             throw ClientError.create401('No access token was supplied in the bearer header');
         }
 
         // On every API request we validate the JWT, in a zero trust manner
-        const tokenClaims = await this._accessTokenValidator.execute(accessToken);
+        const tokenClaims = await this.accessTokenValidator.execute(accessToken);
 
         // Return cached claims immediately if found
         const accessTokenHash = createHash('sha256').update(accessToken).digest('hex');
-        let extraClaims = this._cache.getExtraUserClaims(accessTokenHash);
+        let extraClaims = this.cache.getExtraUserClaims(accessTokenHash);
         if (extraClaims) {
             return new ClaimsPrincipal(tokenClaims, extraClaims);
         }
 
         // Look up extra claims not in the JWT access token when the token is first received
-        extraClaims = await this._extraClaimsProvider.lookupExtraClaims(tokenClaims);
+        extraClaims = await this.extraClaimsProvider.lookupExtraClaims(tokenClaims);
 
         // Cache the extra claims for subsequent requests with the same access token
-        this._cache.setExtraUserClaims(accessTokenHash, extraClaims, tokenClaims.exp || 0);
+        this.cache.setExtraUserClaims(accessTokenHash, extraClaims, tokenClaims.exp || 0);
 
         // Return the final claims used by the API's authorization logic
         return new ClaimsPrincipal(tokenClaims, extraClaims);
@@ -60,7 +60,7 @@ export class OAuthFilter {
     /*
      * Try to read the token from the authorization header
      */
-    private _readAccessToken(request: Request): string | null {
+    private readAccessToken(request: Request): string | null {
 
         const authorizationHeader = request.header('authorization');
         if (authorizationHeader) {

@@ -2,6 +2,7 @@ import mustache from 'mustache';
 import {ApiClient} from '../api/client/apiClient';
 import {CompanyTransactions} from '../api/entities/companyTransactions';
 import {ErrorCodes} from '../plumbing/errors/errorCodes';
+import {UIError} from '../plumbing/errors/uiError';
 import {DomUtils} from './domUtils';
 
 /*
@@ -9,12 +10,12 @@ import {DomUtils} from './domUtils';
  */
 export class TransactionsView {
 
-    private readonly _apiClient: ApiClient;
-    private readonly _companyId: string;
+    private readonly apiClient: ApiClient;
+    private readonly companyId: string;
 
     public constructor(apiClient: ApiClient, companyId: string) {
-        this._apiClient = apiClient;
-        this._companyId = companyId;
+        this.apiClient = apiClient;
+        this.companyId = companyId;
     }
 
     /*
@@ -25,20 +26,22 @@ export class TransactionsView {
         try {
 
             // Try to get data
-            const data = await this._apiClient.getCompanyTransactions(this._companyId);
+            const data = await this.apiClient.getCompanyTransactions(this.companyId);
 
             // Render new content
-            this._renderData(data);
+            this.renderData(data);
 
-        } catch (uiError: any) {
+        } catch (e: any) {
+
+            const uiError = e as UIError;
 
             // Handle invalid input due to typing an id into the browser address bar
-            if (uiError.statusCode === 404 && uiError.errorCode === ErrorCodes.companyNotFound) {
+            if (uiError.getStatusCode() === 404 && uiError.getErrorCode() === ErrorCodes.companyNotFound) {
 
                 // User typed an id value outside of valid company ids
                 location.hash = '#';
 
-            } else if (uiError.statusCode === 400 && uiError.errorCode === ErrorCodes.invalidCompanyId) {
+            } else if (uiError.getStatusCode() === 400 && uiError.getErrorCode() === ErrorCodes.invalidCompanyId) {
 
                 // User typed an invalid id such as 'abc'
                 location.hash = '#';
@@ -55,7 +58,7 @@ export class TransactionsView {
     /*
      * Render data after receiving it from the API
      */
-    private _renderData(data: CompanyTransactions): void {
+    private renderData(data: CompanyTransactions): void {
 
         // Build a view model from the data
         const viewModel = {

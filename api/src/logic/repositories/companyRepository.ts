@@ -7,10 +7,10 @@ import {JsonFileReader} from '../utilities/jsonFileReader.js';
  */
 export class CompanyRepository {
 
-    private readonly _jsonReader: JsonFileReader;
+    private readonly jsonReader: JsonFileReader;
 
     public constructor(jsonReader: JsonFileReader) {
-        this._jsonReader = jsonReader;
+        this.jsonReader = jsonReader;
     }
 
     /*
@@ -18,7 +18,7 @@ export class CompanyRepository {
      */
     public async getCompanyList(): Promise<Company[]> {
 
-        return this._jsonReader.readData<Company[]>('data/companyList.json');
+        return this.jsonReader.readData<Company[]>('data/companyList.json');
     }
 
     /*
@@ -27,13 +27,13 @@ export class CompanyRepository {
     public async getCompanyTransactions(id: number): Promise<CompanyTransactions | null> {
 
         // Read companies and find that supplied
-        const companyList = await this._jsonReader.readData<Company[]>('data/companyList.json');
+        const companyList = await this.jsonReader.readData<Company[]>('data/companyList.json');
         const foundCompany = companyList.find((c) => c.id === id);
         if (foundCompany) {
 
             // Next read transactions from the database
             const companyTransactions =
-                await this._jsonReader.readData<CompanyTransactions[]>('data/companyTransactions.json');
+                await this.jsonReader.readData<CompanyTransactions[]>('data/companyTransactions.json');
 
             // Then join the data
             const foundTransactions = companyTransactions.find((ct) => ct.id === id);

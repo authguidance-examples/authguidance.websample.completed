@@ -8,10 +8,10 @@ import {DomUtils} from './domUtils';
  */
 export class TitleView {
 
-    private readonly _userInfoView: UserInfoView;
+    private readonly userInfoView: UserInfoView;
 
     public constructor() {
-        this._userInfoView = new UserInfoView();
+        this.userInfoView = new UserInfoView();
     }
 
     /*
@@ -38,13 +38,13 @@ export class TitleView {
      * Load the child user info view when requested
      */
     public async loadUserInfo(authenticator: Authenticator, apiClient: ApiClient): Promise<void> {
-        await this._userInfoView.load(authenticator, apiClient);
+        await this.userInfoView.load(authenticator, apiClient);
     }
 
     /*
      * Clear the child user info view when requested
      */
     public clearUserInfo(): void {
-        this._userInfoView.clear();
+        this.userInfoView.clear();
     }
 }

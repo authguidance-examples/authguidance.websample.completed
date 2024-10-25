@@ -13,12 +13,12 @@ export class OidcLogger {
 
         Log.setLogger(console);
 
-        let level = this._getUrlLogLevel();
+        let level = this.getUrlLogLevel();
         if (!level) {
-            level = this._getStoredLogLevel();
+            level = this.getStoredLogLevel();
         }
 
-        this._setLogLevel(level);
+        this.setLogLevel(level);
     }
 
     /*
@@ -26,9 +26,9 @@ export class OidcLogger {
      */
     public updateLogLevelIfRequired(): void {
 
-        const newLevel = this._getUrlLogLevel();
-        if (newLevel && newLevel !== this._getStoredLogLevel()) {
-            this._setLogLevel(newLevel);
+        const newLevel = this.getUrlLogLevel();
+        if (newLevel && newLevel !== this.getStoredLogLevel()) {
+            this.setLogLevel(newLevel);
             HtmlStorageHelper.oidcLogLevel = newLevel;
         }
     }
@@ -36,7 +36,7 @@ export class OidcLogger {
     /*
      * Get the log level from a query parameter in the hash URL, such as #/companies=2&log=info
      */
-    private _getUrlLogLevel(): string {
+    private getUrlLogLevel(): string {
 
         if (location.hash) {
             const args = new URLSearchParams('?' + location.hash.substring(1));
@@ -52,14 +52,14 @@ export class OidcLogger {
     /*
      * Get the value from session storage if it exists
      */
-    private _getStoredLogLevel(): string {
+    private getStoredLogLevel(): string {
         return HtmlStorageHelper.oidcLogLevel;
     }
 
     /*
      * Set the log level in the session so that it is inherited on page reloads and by the renewal iframe
      */
-    private _setLogLevel(level: string): void {
+    private setLogLevel(level: string): void {
 
         const data: { [key: string]: number | undefined } = {
             none:  Log.NONE,

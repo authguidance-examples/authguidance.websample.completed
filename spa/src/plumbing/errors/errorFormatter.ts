@@ -15,28 +15,28 @@ export class ErrorFormatter {
 
         // Display technical details that are OK to show to users
         if (error.message.length > 0) {
-            lines.push(ErrorFormatter._createErrorLine('User Message', error.message));
+            lines.push(ErrorFormatter.createErrorLine('User Message', error.message));
         }
 
-        if (error.area.length > 0) {
-            lines.push(ErrorFormatter._createErrorLine('Area', error.area));
+        if (error.getArea().length > 0) {
+            lines.push(ErrorFormatter.createErrorLine('Area', error.getArea()));
         }
 
-        if (error.errorCode.length > 0) {
-            lines.push(ErrorFormatter._createErrorLine('Error Code', error.errorCode));
+        if (error.getErrorCode().length > 0) {
+            lines.push(ErrorFormatter.createErrorLine('Error Code', error.getErrorCode()));
         }
 
-        if (error.statusCode > 0) {
-            lines.push(ErrorFormatter._createErrorLine('Status Code', error.statusCode.toString()));
+        if (error.getStatusCode() > 0) {
+            lines.push(ErrorFormatter.createErrorLine('Status Code', error.getStatusCode().toString()));
         }
 
-        if (error.instanceId > 0) {
-            lines.push(ErrorFormatter._createErrorLine('Id', error.instanceId.toString()));
+        if (error.getInstanceId() > 0) {
+            lines.push(ErrorFormatter.createErrorLine('Id', error.getInstanceId().toString()));
         }
 
-        if (error.utcTime.length > 0) {
+        if (error.getUtcTime().length > 0) {
 
-            const errorTime = Date.parse(error.utcTime);
+            const errorTime = Date.parse(error.getUtcTime());
             const displayTime = new Date(errorTime).toLocaleString('en', {
                 timeZone: 'utc',
                 day: '2-digit',
@@ -47,15 +47,15 @@ export class ErrorFormatter {
                 second: '2-digit',
                 hour12: false,
             }).replace(/,/g, '');
-            lines.push(ErrorFormatter._createErrorLine('UTC Time', displayTime));
+            lines.push(ErrorFormatter.createErrorLine('UTC Time', displayTime));
         }
 
-        if (error.details.length > 0) {
-            lines.push(ErrorFormatter._createErrorLine('Details', error.details));
+        if (error.getDetails().length > 0) {
+            lines.push(ErrorFormatter.createErrorLine('Details', error.getDetails()));
         }
 
-        if (error.url.length > 0) {
-            lines.push(ErrorFormatter._createErrorLine('URL', error.url));
+        if (error.getUrl().length > 0) {
+            lines.push(ErrorFormatter.createErrorLine('URL', error.getUrl()));
         }
 
         return lines;
@@ -70,7 +70,7 @@ export class ErrorFormatter {
         // We can then look up results at https://sourcemaps.info
         if (IS_DEBUG) {
             if (error.stack) {
-                return ErrorFormatter._createErrorLine('Stack', error.stack);
+                return ErrorFormatter.createErrorLine('Stack', error.stack);
             }
         }
 
@@ -80,7 +80,7 @@ export class ErrorFormatter {
     /*
      * Return an error line as an object
      */
-    private static _createErrorLine(label: string, value: string): ErrorLine {
+    private static createErrorLine(label: string, value: string): ErrorLine {
 
         return {
             label,

@@ -10,12 +10,12 @@ import {TransactionsView} from './transactionsView';
  */
 export class Router {
 
-    private _apiClient: ApiClient;
-    private _errorView: ErrorView;
+    private apiClient: ApiClient;
+    private errorView: ErrorView;
 
     public constructor(apiClient: ApiClient, errorView: ErrorView) {
-        this._apiClient = apiClient;
-        this._errorView = errorView;
+        this.apiClient = apiClient;
+        this.errorView = errorView;
     }
 
     /*
@@ -25,7 +25,7 @@ export class Router {
 
         // Initialise
         DomUtils.createDiv('#root', 'main');
-        this._errorView.clear();
+        this.errorView.clear();
 
         // Our simple router works out which main view to show from a couple of known hash fragments
         if (this.isInLoggedOutView()) {
@@ -41,13 +41,13 @@ export class Router {
             if (transactionsCompany) {
 
                 // If there is an id we move to the transactions view
-                const view = new TransactionsView(this._apiClient, transactionsCompany);
+                const view = new TransactionsView(this.apiClient, transactionsCompany);
                 await view.load();
 
             } else {
 
                 // Otherwise we show the companies list view
-                const view = new CompaniesView(this._apiClient);
+                const view = new CompaniesView(this.apiClient);
                 await view.load();
             }
         }

@@ -7,20 +7,20 @@ import {HttpProxy} from '../utilities/httpProxy.js';
  */
 export class JwksRetriever {
 
-    private readonly _remoteJWKSet: JWTVerifyGetKey;
+    private readonly remoteJWKSet: JWTVerifyGetKey;
 
     public constructor(configuration: OAuthConfiguration, httpProxy: HttpProxy) {
 
         // View requests via an HTTP proxy if required
         const jwksOptions = {
-            agent: httpProxy.agent,
+            agent: httpProxy.getAgent(),
         } as RemoteJWKSetOptions;
 
         // Create this object only once
-        this._remoteJWKSet = createRemoteJWKSet(new URL(configuration.jwksEndpoint), jwksOptions);
+        this.remoteJWKSet = createRemoteJWKSet(new URL(configuration.jwksEndpoint), jwksOptions);
     }
 
-    public get remoteJWKSet(): JWTVerifyGetKey {
-        return this._remoteJWKSet;
+    public getRemoteJWKSet(): JWTVerifyGetKey {
+        return this.remoteJWKSet;
     }
 }

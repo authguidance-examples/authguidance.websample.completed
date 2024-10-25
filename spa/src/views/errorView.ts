@@ -12,7 +12,7 @@ import {DomUtils} from './domUtils';
 export class ErrorView {
 
     public constructor() {
-        this._setupCallbacks();
+        this.setupCallbacks();
     }
 
     /*
@@ -50,10 +50,10 @@ export class ErrorView {
         const error = ErrorFactory.getFromException(exception);
 
         // Do not render if we are just short circuiting page execution to start a login redirect
-        if (error.errorCode !== ErrorCodes.loginRequired) {
+        if (error.getErrorCode() !== ErrorCodes.loginRequired) {
 
             // Otherwise render the error fields
-            this._renderError(error);
+            this.renderError(error);
         }
     }
 
@@ -69,7 +69,7 @@ export class ErrorView {
     /*
      * Render the error to the UI
      */
-    private _renderError(error: UIError): void {
+    private renderError(error: UIError): void {
 
         // Clear content and make the form visible
         DomUtils.text('#errortitle', '');
@@ -81,15 +81,15 @@ export class ErrorView {
 
         // Render the error fields
         const errorHtml =
-            this._getLinesHtml(ErrorFormatter.getErrorLines(error)) +
-            this._getStackHtml(ErrorFormatter.getErrorStack(error));
+            this.getLinesHtml(ErrorFormatter.getErrorLines(error)) +
+            this.getStackHtml(ErrorFormatter.getErrorStack(error));
         DomUtils.html('#errorform', errorHtml);
     }
 
     /*
      * Get the HTML for the error lines
      */
-    private _getLinesHtml(errorLines: ErrorLine[]): string {
+    private getLinesHtml(errorLines: ErrorLine[]): string {
 
         const htmlTemplate =
             `{{#lines}}
@@ -109,7 +109,7 @@ export class ErrorView {
     /*
      * Get the HTML for the error stack trace
      */
-    private _getStackHtml(stackLine: ErrorLine | null): string {
+    private getStackHtml(stackLine: ErrorLine | null): string {
 
         if (!stackLine) {
             return '';
@@ -139,7 +139,7 @@ export class ErrorView {
     /*
      * Plumbing to make the this parameter available in callbacks
      */
-    private _setupCallbacks(): void {
+    private setupCallbacks(): void {
         this.clear = this.clear.bind(this);
     }
 }

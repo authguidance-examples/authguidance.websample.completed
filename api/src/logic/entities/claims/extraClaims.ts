@@ -3,19 +3,19 @@
  */
 export class ExtraClaims {
 
-    private _title: string;
-    private _regions: string[];
+    private title: string;
+    private regions: string[];
 
     public constructor(title: string, regions: string[]) {
-        this._title = title;
-        this._regions = regions;
+        this.title = title;
+        this.regions = regions;
     }
 
-    public get title(): string {
-        return this._title;
+    public getTitle(): string {
+        return this.title;
     }
 
-    public get regions(): string[] {
-        return this._regions;
+    public getRegions(): string[] {
+        return this.regions;
     }
 }

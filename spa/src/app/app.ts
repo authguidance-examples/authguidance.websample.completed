@@ -15,20 +15,20 @@ import {TitleView} from '../views/titleView';
  */
 export class App {
 
-    private _configuration!: Configuration;
-    private _authenticator!: Authenticator;
-    private _apiClient!: ApiClient;
-    private _oidcLogger: OidcLogger;
-    private _router!: Router;
-    private _titleView!: TitleView;
-    private _headerButtonsView!: HeaderButtonsView;
-    private _errorView!: ErrorView;
-    private _isInitialised: boolean;
+    private configuration!: Configuration;
+    private authenticator!: Authenticator;
+    private apiClient!: ApiClient;
+    private oidcLogger: OidcLogger;
+    private router!: Router;
+    private titleView!: TitleView;
+    private headerButtonsView!: HeaderButtonsView;
+    private errorView!: ErrorView;
+    private isInitialised: boolean;
 
     public constructor() {
-        this._isInitialised = false;
-        this._oidcLogger = new OidcLogger();
-        this._setupCallbacks();
+        this.isInitialised = false;
+        this.oidcLogger = new OidcLogger();
+        this.setupCallbacks();
     }
 
     /*
@@ -39,152 +39,152 @@ export class App {
         try {
 
             // Start listening for hash changes
-            window.onhashchange = this._onHashChange;
-            window.onstorage = this._onStorageChange;
+            window.onhashchange = this.onHashChange;
+            window.onstorage = this.onStorageChange;
 
             // Do the initial render
-            this._initialRender();
+            this.initialRender();
 
             // Do one time app initialisation
-            await this._initialiseApp();
+            await this.initialiseApp();
 
             // We must be prepared for page invocation to be an OAuth response
-            await this._authenticator.handleLoginResponse();
+            await this.authenticator.handleLoginResponse();
 
             // Load the main view, which may trigger a login redirect
-            await this._loadMainView();
+            await this.loadMainView();
 
             // Get user info from the API unless we are in the logged out view
-            if (!this._router.isInLoggedOutView()) {
-                await this._loadUserInfo();
+            if (!this.router.isInLoggedOutView()) {
+                await this.loadUserInfo();
             }
 
         } catch (e: any) {
 
             // Report failures
-            this._errorView?.report(e);
+            this.errorView?.report(e);
         }
     }
 
     /*
      * Render views in their initial state
      */
-    private _initialRender() {
+    private initialRender() {
 
-        this._titleView = new TitleView();
-        this._titleView.load();
+        this.titleView = new TitleView();
+        this.titleView.load();
 
-        this._headerButtonsView = new HeaderButtonsView(
-            this._onHome,
-            this._onReloadData,
-            this._onExpireToken,
-            this._onLogout);
-        this._headerButtonsView.load();
+        this.headerButtonsView = new HeaderButtonsView(
+            this.onHome,
+            this.onReloadData,
+            this.onExpireToken,
+            this.onLogout);
+        this.headerButtonsView.load();
 
-        this._errorView = new ErrorView();
-        this._errorView.load();
+        this.errorView = new ErrorView();
+        this.errorView.load();
     }
 
     /*
      * Initialise the app
      */
-    private async _initialiseApp(): Promise<void> {
+    private async initialiseApp(): Promise<void> {
 
         // Download application configuration
-        this._configuration = await ConfigurationLoader.download('spa.config.json');
+        this.configuration = await ConfigurationLoader.download('spa.config.json');
 
         // Initialise our OIDC Client wrapper
-        this._authenticator = new Authenticator(this._configuration.oauth);
+        this.authenticator = new Authenticator(this.configuration.oauth);
 
         // Create a client to reliably call the API
-        this._apiClient = new ApiClient(this._configuration.app.apiBaseUrl, this._authenticator);
+        this.apiClient = new ApiClient(this.configuration.app.apiBaseUrl, this.authenticator);
 
         // Our simple router passes the API Client instance between views
-        this._router = new Router(this._apiClient, this._errorView);
+        this.router = new Router(this.apiClient, this.errorView);
 
         // Update state to indicate that global objects are loaded
-        this._isInitialised = true;
+        this.isInitialised = true;
     }
 
     /*
      * Load API data for the main view and update UI controls
      */
-    private async _loadMainView(): Promise<void> {
+    private async loadMainView(): Promise<void> {
 
         // Indicate busy
-        this._headerButtonsView.disableSessionButtons();
+        this.headerButtonsView.disableSessionButtons();
 
         // Load the view
-        await this._router.loadView();
+        await this.router.loadView();
 
-        if (this._router.isInLoggedOutView()) {
+        if (this.router.isInLoggedOutView()) {
 
             // If we are logged out then clear user info
-            this._headerButtonsView.setIsAuthenticated(false);
-            this._clearUserInfo();
+            this.headerButtonsView.setIsAuthenticated(false);
+            this.clearUserInfo();
 
         } else {
 
             // Otherwise re-enable buttons
-            this._headerButtonsView.setIsAuthenticated(true);
-            this._headerButtonsView.enableSessionButtons();
+            this.headerButtonsView.setIsAuthenticated(true);
+            this.headerButtonsView.enableSessionButtons();
         }
     }
 
     /*
      * Load API data for the user info fragment
      */
-    private async _loadUserInfo(): Promise<void> {
-        await this._titleView.loadUserInfo(this._authenticator, this._apiClient);
+    private async loadUserInfo(): Promise<void> {
+        await this.titleView.loadUserInfo(this.authenticator, this.apiClient);
     }
 
     /*
      * Load API data for the user info fragment
      */
-    private _clearUserInfo(): void {
-        this._titleView.clearUserInfo();
+    private clearUserInfo(): void {
+        this.titleView.clearUserInfo();
     }
 
     /*
      * Change the view based on the hash URL and catch errors
      */
-    private async _onHashChange(): Promise<void> {
+    private async onHashChange(): Promise<void> {
 
         // Handle updates to log levels when the URL log setting is changed
-        this._oidcLogger.updateLogLevelIfRequired();
+        this.oidcLogger.updateLogLevelIfRequired();
 
         try {
 
             // Run main view navigation
-            if (this._isInitialised) {
-                await this._loadMainView();
+            if (this.isInitialised) {
+                await this.loadMainView();
             }
 
         } catch (e: any) {
 
             // Report failures
-            this._errorView.report(e);
+            this.errorView.report(e);
         }
     }
 
     /*
      * The home button moves to the home view but also deals with error recovery
      */
-    private async _onHome(): Promise<void> {
+    private async onHome(): Promise<void> {
 
         try {
 
             // Retry if the app failed to initialise
-            if (!this._isInitialised) {
-                await this._initialiseApp();
+            if (!this.isInitialised) {
+                await this.initialiseApp();
             }
 
-            if (this._isInitialised) {
+            if (this.isInitialised) {
 
-                if (this._router.isInHomeView()) {
+                if (this.router.isInHomeView()) {
 
                     // Force a reload if we are already in the home view
-                    await this._loadMainView();
+                    await this.loadMainView();
 
                 } else {
 
@@ -196,33 +196,33 @@ export class App {
         } catch (e: any) {
 
             // Report failures
-            this._errorView.report(e);
+            this.errorView.report(e);
         }
     }
 
     /*
      * Force both API calls when reload is clicked
      */
-    private async _onReloadData(): Promise<void> {
+    private async onReloadData(): Promise<void> {
 
         try {
-            await this._loadMainView();
-            await this._loadUserInfo();
+            await this.loadMainView();
+            await this.loadUserInfo();
 
         } catch (e: any) {
 
-            this._errorView.report(e);
+            this.errorView.report(e);
         }
     }
 
     /*
      * Perform a logout request
      */
-    private async _onLogout(): Promise<void> {
+    private async onLogout(): Promise<void> {
 
         try {
             // Start the logout redirect
-            await this._authenticator.startLogout();
+            await this.authenticator.startLogout();
 
         } catch (e: any) {
 
@@ -235,11 +235,11 @@ export class App {
     /*
      * Handle logout notifications from other browser tabs
      */
-    private _onStorageChange(event: StorageEvent): void {
+    private onStorageChange(event: StorageEvent): void {
 
         if (HtmlStorageHelper.isLoggedOutEvent(event)) {
 
-            this._authenticator.onExternalLogout();
+            this.authenticator.onExternalLogout();
             location.hash = '#loggedout';
         }
     }
@@ -247,19 +247,19 @@ export class App {
     /*
      * Force a new access token to be retrieved
      */
-    private async _onExpireToken(): Promise<void> {
-        await this._authenticator.expireAccessToken();
+    private async onExpireToken(): Promise<void> {
+        await this.authenticator.expireAccessToken();
     }
 
     /*
      * Plumbing to ensure that the this parameter is available in async callbacks
      */
-    private _setupCallbacks(): void {
-        this._onHashChange = this._onHashChange.bind(this);
-        this._onHome = this._onHome.bind(this);
-        this._onReloadData = this._onReloadData.bind(this);
-        this._onLogout = this._onLogout.bind(this);
-        this._onStorageChange = this._onStorageChange.bind(this);
-        this._onExpireToken = this._onExpireToken.bind(this);
+    private setupCallbacks(): void {
+        this.onHashChange = this.onHashChange.bind(this);
+        this.onHome = this.onHome.bind(this);
+        this.onReloadData = this.onReloadData.bind(this);
+        this.onLogout = this.onLogout.bind(this);
+        this.onStorageChange = this.onStorageChange.bind(this);
+        this.onExpireToken = this.onExpireToken.bind(this);
     }
 }

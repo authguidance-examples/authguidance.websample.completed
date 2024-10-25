@@ -7,47 +7,47 @@ import {ServerError} from '../../logic/errors/serverError.js';
  */
 export class LogEntry {
 
-    public readonly _utcTime: Date;
-    public _path: string;
-    public _method: string;
-    public _statusCode: number;
-    public _error: ClientError | ServerError | null;
+    public readonly utcTime: Date;
+    public path: string;
+    public method: string;
+    public statusCode: number;
+    public error: ClientError | ServerError | null;
 
     public constructor() {
-        this._utcTime = new Date();
-        this._path = '';
-        this._method = '';
-        this._statusCode = 0;
-        this._error = null;
+        this.utcTime = new Date();
+        this.path = '';
+        this.method = '';
+        this.statusCode = 0;
+        this.error = null;
     }
 
     /*
      * Include some basic request information
      */
     public start(request: Request): void {
-        this._path = request.originalUrl;
-        this._method = request.method;
+        this.path = request.originalUrl;
+        this.method = request.method;
     }
 
     /*
      * Include some basic response information
      */
     public end(response: Response): void {
-        this._statusCode = response.statusCode;
+        this.statusCode = response.statusCode;
     }
 
     /*
      * Record errors
      */
     public setError(error: ClientError | ServerError): void {
-        this._error = error;
+        this.error = error;
     }
 
     /*
      * Indicate whether there is error information
      */
     public hasError(): boolean {
-        return !!this._error;
+        return !!this.error;
     }
 
     /*
@@ -56,20 +56,20 @@ export class LogEntry {
     public toOutputFormat(): any {
 
         const data = {
-            utcTime: this._utcTime,
+            utcTime: this.utcTime,
         } as any;
 
-        if (this._path && this._method) {
-            data.path = this._path;
-            data.method = this._method;
+        if (this.path && this.method) {
+            data.path = this.path;
+            data.method = this.method;
         }
 
-        if (this._statusCode) {
-            data.statusCode = this._statusCode;
+        if (this.statusCode) {
+            data.statusCode = this.statusCode;
         }
 
-        if (this._error) {
-            data.error = this._error.toLogFormat();
+        if (this.error) {
+            data.error = this.error.toLogFormat();
         }
 
         return data;

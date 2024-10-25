@@ -35,7 +35,7 @@ export class ErrorFactory {
             ErrorCodes.serverError,
             'An unexpected exception occurred in the API',
             exception.stack);
-        serverError.details = this._getExceptionDetails(exception);
+        serverError.setDetails(this.getExceptionDetails(exception));
         return serverError;
     }
 
@@ -60,8 +60,8 @@ export class ErrorFactory {
             'Problem downloading token signing keys',
             e.stack);
 
-        const details = this._getExceptionDetails(e);
-        error.details = `${details}, URL: ${url}`;
+        const details = this.getExceptionDetails(e);
+        error.setDetails(`${details}, URL: ${url}`);
         return error;
     }
 
@@ -107,7 +107,7 @@ export class ErrorFactory {
 
         // Otherwise report technical failures
         const error = new ServerError(ErrorCodes.userinfoFailure, 'User info lookup failed', e.stack);
-        error.details = details;
+        error.setDetails(details);
         return error;
     }
 
@@ -117,14 +117,14 @@ export class ErrorFactory {
     public static fromMissingClaim(claimName: string): ServerError {
 
         const error = new ServerError(ErrorCodes.insufficientScope, 'Authorization Data Not Found');
-        error.details = `An empty value was found for the expected claim ${claimName}`;
+        error.setDetails(`An empty value was found for the expected claim ${claimName}`);
         return error;
     }
 
     /*
      * Get the message from an exception and avoid returning [object Object]
      */
-    private static _getExceptionDetails(e: any): string {
+    private static getExceptionDetails(e: any): string {
 
         if (e.message) {
             return e.message;

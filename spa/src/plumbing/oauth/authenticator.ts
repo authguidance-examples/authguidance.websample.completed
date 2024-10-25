@@ -11,14 +11,14 @@ import {OAuthUserInfo} from './oauthUserInfo';
  */
 export class Authenticator {
 
-    private readonly _configuration: OAuthConfiguration;
-    private readonly _userManager: UserManager;
-    private _loginTime: number | null;
+    private readonly configuration: OAuthConfiguration;
+    private readonly userManager: UserManager;
+    private loginTime: number | null;
 
     public constructor(configuration: OAuthConfiguration) {
 
         // Create OIDC settings from our application configuration
-        this._configuration = configuration;
+        this.configuration = configuration;
         const settings = {
 
             // The OpenID Connect base URL
@@ -50,8 +50,8 @@ export class Authenticator {
         };
 
         // Create the user manager
-        this._userManager = new UserManager(settings);
-        this._loginTime = null;
+        this.userManager = new UserManager(settings);
+        this.loginTime = null;
     }
 
     /*
@@ -60,7 +60,7 @@ export class Authenticator {
     public async getAccessToken(): Promise<string | null> {
 
         // On most calls we just return the existing token from memory
-        const user = await this._userManager.getUser();
+        const user = await this.userManager.getUser();
         if (user && user.access_token) {
             return user.access_token;
         }
@@ -77,33 +77,33 @@ export class Authenticator {
         // This flag avoids an unnecessary silent refresh when the app first loads
         if (HtmlStorageHelper.isLoggedIn) {
 
-            if (this._configuration.provider === 'cognito') {
+            if (this.configuration.provider === 'cognito') {
 
                 // For Cognito, the traditional iframe renewal flow is not supported
                 // This is due to issuing a SameSite=lax SSO cookie instead of SameSite=none
                 // Also the OpenID Connect prompt=none parameter is unsupported
                 // This can lead to hangs where the login window is rendered on the invisible iframe
                 // Therefore refresh the access token using a refresh token stored in JavaScript memory
-                const user = await this._userManager.getUser();
+                const user = await this.userManager.getUser();
                 if (user && user.refresh_token) {
-                    await this._performAccessTokenRenewalViaRefreshToken();
+                    await this.performAccessTokenRenewalViaRefreshToken();
                 }
 
             } else {
 
                 // For other providers, assume that SSO cookies with SameSite=none are issued
                 // Also assume that prompt=none works and returns a login_required error when the SSO cookie expires
-                await this._performAccessTokenRenewalViaIframeRedirect();
+                await this.performAccessTokenRenewalViaIframeRedirect();
 
                 // Ensure that the iframe flow is used, by removing any refresh tokens received
-                const user = await this._userManager.getUser();
+                const user = await this.userManager.getUser();
                 if (user && user.refresh_token) {
                     user.refresh_token = '';
-                    this._userManager.storeUser(user);
+                    this.userManager.storeUser(user);
                 }
             }
 
-            const updatedUser = await this._userManager.getUser();
+            const updatedUser = await this.userManager.getUser();
             if (updatedUser && updatedUser.access_token) {
                 return updatedUser.access_token;
             }
@@ -125,10 +125,10 @@ export class Authenticator {
             };
 
             // Handle a special case
-            await this._preventRedirectLoop(api401Error);
+            await this.preventRedirectLoop(api401Error);
 
             // Start a login redirect
-            await this._userManager.signinRedirect({
+            await this.userManager.signinRedirect({
                 state: data,
             });
 
@@ -150,23 +150,23 @@ export class Authenticator {
         if (state) {
 
             // Only try to process a login response if the state exists
-            const storedState = await this._userManager.settings.stateStore?.get(state);
+            const storedState = await this.userManager.settings.stateStore?.get(state);
             if (storedState) {
 
                 let redirectLocation = '#';
                 try {
 
                     // Handle the login response
-                    const user = await this._userManager.signinRedirectCallback();
+                    const user = await this.userManager.signinRedirectCallback();
 
                     // Remove the refresh token if using iframe based renewal
                     // It remains unsatisfactory that the SPA receives a refresh token
-                    if (this._configuration.provider !== 'cognito') {
+                    if (this.configuration.provider !== 'cognito') {
                         user.refresh_token = '';
                     }
 
                     // Store tokens in memory
-                    this._userManager.storeUser(user);
+                    this.userManager.storeUser(user);
 
                     // We will return to the app location from before the login redirect
                     redirectLocation = (user.state as any).hash;
@@ -175,7 +175,7 @@ export class Authenticator {
                     HtmlStorageHelper.isLoggedIn = true;
 
                     // The login time enables a check that avoids redirect loops when configuration is invalid
-                    this._loginTime = new Date().getTime();
+                    this.loginTime = new Date().getTime();
 
                 } catch (e: any) {
 
@@ -202,15 +202,15 @@ export class Authenticator {
             await this.clearLoginState();
             HtmlStorageHelper.raiseLoggedOutEvent();
 
-            if (this._configuration.provider === 'cognito') {
+            if (this.configuration.provider === 'cognito') {
 
                 // Cognito requires a vendor specific logout request URL
-                location.replace(this._getCognitoEndSessionRequestUrl());
+                location.replace(this.getCognitoEndSessionRequestUrl());
 
             } else {
 
                 // Otherwise use a standard end session request message
-                await this._userManager.signoutRedirect();
+                await this.userManager.signoutRedirect();
             }
 
         } catch (e: any) {
@@ -232,7 +232,7 @@ export class Authenticator {
      */
     public async getUserInfo(): Promise<OAuthUserInfo | null> {
 
-        const user = await this._userManager.getUser();
+        const user = await this.userManager.getUser();
         if (user && user.profile) {
             if (user.profile.given_name && user.profile.family_name) {
 
@@ -251,8 +251,8 @@ export class Authenticator {
      */
     public async clearLoginState(): Promise<void> {
 
-        await this._userManager.removeUser();
-        this._loginTime = null;
+        await this.userManager.removeUser();
+        this.loginTime = null;
         HtmlStorageHelper.isLoggedIn = false;
     }
 
@@ -261,12 +261,12 @@ export class Authenticator {
      */
     public async expireAccessToken(): Promise<void> {
 
-        const user = await this._userManager.getUser();
+        const user = await this.userManager.getUser();
         if (user) {
 
             // Add a character to the signature to make it fail validation
             user.access_token = `${user.access_token}x`;
-            this._userManager.storeUser(user);
+            this.userManager.storeUser(user);
         }
     }
 
@@ -275,14 +275,14 @@ export class Authenticator {
      * This will fail if there is no authorization server SSO cookie or if it does not use SameSite=none
      * It will always fail in the Safari browser, which will refuse to send the cookie from an iframe
      */
-    private async _performAccessTokenRenewalViaIframeRedirect(): Promise<void> {
+    private async performAccessTokenRenewalViaIframeRedirect(): Promise<void> {
 
         try {
 
             // Redirect on an iframe using the authorization server session cookie and prompt=none
             // This instructs the authorization server to not render the login page on the iframe
             // If the request fails there should be a login_required error returned from the authorization server
-            await this._userManager.signinSilent();
+            await this.userManager.signinSilent();
 
         } catch (e: any) {
 
@@ -304,12 +304,12 @@ export class Authenticator {
      * The browser cannot store a long lived token securely and malicious code could potentially access it
      * When using memory storage and a new browser tab is opened, there is an unwelcome browser redirect
      */
-    private async _performAccessTokenRenewalViaRefreshToken(): Promise<void> {
+    private async performAccessTokenRenewalViaRefreshToken(): Promise<void> {
 
         try {
 
             // The library will use the refresh token grant to get a new access token
-            await this._userManager.signinSilent();
+            await this.userManager.signinSilent();
 
         } catch (e: any) {
 
@@ -330,10 +330,10 @@ export class Authenticator {
     /*
      * Cognito uses a vendor specific logout solution do we must build the request URL manually
      */
-    private _getCognitoEndSessionRequestUrl(): string {
+    private getCognitoEndSessionRequestUrl(): string {
 
-        let url = `${this._configuration.customLogoutEndpoint}`;
-        url += `?client_id=${this._configuration.clientId}&logout_uri=${this._configuration.postLogoutRedirectUri}`;
+        let url = `${this.configuration.customLogoutEndpoint}`;
+        url += `?client_id=${this.configuration.clientId}&logout_uri=${this.configuration.postLogoutRedirectUri}`;
         return url;
     }
 
@@ -341,12 +341,12 @@ export class Authenticator {
      * Iframe token refresh can fail due to SSO cookies being dropped during iframe token renewal
      * This can create a cycle so this check prevents a redirect loop if a successful login has just completed
      */
-    private async _preventRedirectLoop(api401Error: UIError | null): Promise<void> {
+    private async preventRedirectLoop(api401Error: UIError | null): Promise<void> {
 
-        if (api401Error && this._loginTime) {
+        if (api401Error && this.loginTime) {
 
             const currentTime = new Date().getTime();
-            const millisecondsSinceLogin = currentTime - this._loginTime;
+            const millisecondsSinceLogin = currentTime - this.loginTime;
             if (millisecondsSinceLogin < 1000) {
 
                 // This causes an error to be presented after which a retry does a new top level redirect

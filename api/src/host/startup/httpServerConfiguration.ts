@@ -12,17 +12,17 @@ import {ApiLogger} from '../logging/apiLogger.js';
  */
 export class HttpServerConfiguration {
 
-    private readonly _express: Application;
-    private readonly _configuration: Configuration;
-    private readonly _apiLogger: ApiLogger;
-    private readonly _apiController: ApiController;
+    private readonly express: Application;
+    private readonly configuration: Configuration;
+    private readonly apiLogger: ApiLogger;
+    private readonly apiController: ApiController;
 
     public constructor(expressApp: Application, configuration: Configuration, logger: ApiLogger) {
 
-        this._express = expressApp;
-        this._configuration = configuration;
-        this._apiLogger = logger;
-        this._apiController = new ApiController(this._configuration);
+        this.express = expressApp;
+        this.configuration = configuration;
+        this.apiLogger = logger;
+        this.apiController = new ApiController(this.configuration);
     }
 
     /*
@@ -32,24 +32,24 @@ export class HttpServerConfiguration {
 
         // Grant API access to the web origin
         const corsOptions = {
-            origin: this._configuration.api.trustedOrigins,
+            origin: this.configuration.api.trustedOrigins,
             maxAge: 86400,
         };
-        this._express.use('/api/*_', cors(corsOptions));
-        this._express.use('/api/*_', this._apiController.onWriteHeaders);
+        this.express.use('/api/*_', cors(corsOptions));
+        this.express.use('/api/*_', this.apiController.onWriteHeaders);
 
         // Add cross cutting concerns
-        this._express.use('/api/*_', this._apiLogger.logRequest);
-        this._express.use('/api/*_', this._apiController.authorizationHandler);
+        this.express.use('/api/*_', this.apiLogger.logRequest);
+        this.express.use('/api/*_', this.apiController.authorizationHandler);
 
         // API routes containing business logic
-        this._express.get('/api/userinfo', this._apiController.getUserInfo);
-        this._express.get('/api/companies', this._apiController.getCompanyList);
-        this._express.get('/api/companies/:id/transactions', this._apiController.getCompanyTransactions);
+        this.express.get('/api/userinfo', this.apiController.getUserInfo);
+        this.express.get('/api/companies', this.apiController.getCompanyList);
+        this.express.get('/api/companies/:id/transactions', this.apiController.getCompanyTransactions);
 
         // Handle errors after routes are defined
-        this._express.use('/api/*_', this._apiController.onRequestNotFound);
-        this._express.use('/api/*_', this._apiController.onException);
+        this.express.use('/api/*_', this.apiController.onRequestNotFound);
+        this.express.use('/api/*_', this.apiController.onException);
     }
 
     /*
@@ -57,8 +57,8 @@ export class HttpServerConfiguration {
      */
     public initializeWebStaticContentHosting(): void {
 
-        this._express.use('/spa', express.static('../spa'));
-        this._express.use('/favicon.ico', express.static('../spa/favicon.ico'));
+        this.express.use('/spa', express.static('../spa'));
+        this.express.use('/favicon.ico', express.static('../spa/favicon.ico'));
     }
 
     /*
@@ -66,18 +66,18 @@ export class HttpServerConfiguration {
      */
     public async startListening(): Promise<void> {
 
-        const port = this._configuration.api.port;
-        if (this._configuration.api.sslCertificateFileName && this._configuration.api.sslCertificatePassword) {
+        const port = this.configuration.api.port;
+        if (this.configuration.api.sslCertificateFileName && this.configuration.api.sslCertificatePassword) {
 
             // Load the certificate file from disk
-            const pfxFile = await fs.readFile(this._configuration.api.sslCertificateFileName);
+            const pfxFile = await fs.readFile(this.configuration.api.sslCertificateFileName);
             const sslOptions = {
                 pfx: pfxFile,
-                passphrase: this._configuration.api.sslCertificatePassword,
+                passphrase: this.configuration.api.sslCertificatePassword,
             };
 
             // Start listening on HTTPS
-            const httpsServer = https.createServer(sslOptions, this._express);
+            const httpsServer = https.createServer(sslOptions, this.express);
             httpsServer.listen(port, () => {
                 console.log(`API is listening on HTTPS port ${port}`);
             });
@@ -85,7 +85,7 @@ export class HttpServerConfiguration {
         } else {
 
             // Otherwise listen over HTTP
-            this._express.listen(port, () => {
+            this.express.listen(port, () => {
                 console.log(`API is listening on HTTP port ${port}`);
             });
         }

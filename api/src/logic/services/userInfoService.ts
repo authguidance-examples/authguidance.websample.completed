@@ -6,17 +6,17 @@ import {ClaimsPrincipal} from '../entities/claims/claimsPrincipal.js';
  */
 export class UserInfoService {
 
-    private readonly _claims: ClaimsPrincipal;
+    private readonly claims: ClaimsPrincipal;
 
     public constructor(claims: ClaimsPrincipal) {
-        this._claims = claims;
+        this.claims = claims;
     }
 
     public getUserInfo(): any {
 
         return {
-            title: this._claims.extra.title,
-            regions: this._claims.extra.regions,
+            title: this.claims.getExtra().getTitle(),
+            regions: this.claims.getExtra().getRegions(),
         };
     }
 }

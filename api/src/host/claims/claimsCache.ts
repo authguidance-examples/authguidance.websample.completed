@@ -7,8 +7,8 @@ import {OAuthConfiguration} from '../configuration/oauthConfiguration.js';
  */
 export class ClaimsCache {
 
-    private readonly _cache: NodeCache;
-    private readonly _defaultTimeToLiveSeconds: number;
+    private readonly cache: NodeCache;
+    private readonly defaultTimeToLiveSeconds: number;
 
     /*
      * Create the cache at application startup
@@ -17,13 +17,13 @@ export class ClaimsCache {
     public constructor(configuration: OAuthConfiguration) {
 
         // Create the cache and set a default time to live in seconds
-        this._defaultTimeToLiveSeconds = configuration.claimsCacheTimeToLiveMinutes * 60;
-        this._cache = new NodeCache({
-            stdTTL: this._defaultTimeToLiveSeconds,
+        this.defaultTimeToLiveSeconds = configuration.claimsCacheTimeToLiveMinutes * 60;
+        this.cache = new NodeCache({
+            stdTTL: this.defaultTimeToLiveSeconds,
         });
 
         // If required add debug output here to verify expiry occurs when expected
-        this._cache.on('expired', (key: string, value: any) => {
+        this.cache.on('expired', (key: string, value: any) => {
             console.log(`Expired token has been removed from the cache (hash: ${key})`);
         });
     }
@@ -34,7 +34,7 @@ export class ClaimsCache {
     public getExtraUserClaims(accessTokenHash: string): ExtraClaims | null {
 
         // Get the token hash and see if it exists in the cache
-        const claims = this._cache.get<ExtraClaims>(accessTokenHash);
+        const claims = this.cache.get<ExtraClaims>(accessTokenHash);
         if (!claims) {
 
             // If this is a new token and we need to do claims processing
@@ -61,13 +61,13 @@ export class ClaimsCache {
             console.debug(`Token to be cached will expire in ${secondsToCache} seconds (hash: ${accessTokenHash})`);
 
             // Do not exceed the maximum time we configured
-            if (secondsToCache > this._defaultTimeToLiveSeconds) {
-                secondsToCache = this._defaultTimeToLiveSeconds;
+            if (secondsToCache > this.defaultTimeToLiveSeconds) {
+                secondsToCache = this.defaultTimeToLiveSeconds;
             }
 
             // Cache the token until the above time
             console.debug(`Adding token to claims cache for ${secondsToCache} seconds (hash: ${accessTokenHash})`);
-            this._cache.set(accessTokenHash, claims, secondsToCache);
+            this.cache.set(accessTokenHash, claims, secondsToCache);
         }
     }
 }

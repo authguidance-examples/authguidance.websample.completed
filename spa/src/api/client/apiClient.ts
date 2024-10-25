@@ -13,17 +13,17 @@ import {CompanyTransactions} from '../entities/companyTransactions';
  */
 export class ApiClient {
 
-    private readonly _apiBaseUrl: string;
-    private readonly _authenticator: Authenticator;
+    private readonly apiBaseUrl: string;
+    private readonly authenticator: Authenticator;
 
     public constructor(apiBaseUrl: string, authenticator: Authenticator) {
 
-        this._apiBaseUrl = apiBaseUrl;
-        if (!this._apiBaseUrl.endsWith('/')) {
-            this._apiBaseUrl += '/';
+        this.apiBaseUrl = apiBaseUrl;
+        if (!this.apiBaseUrl.endsWith('/')) {
+            this.apiBaseUrl += '/';
         }
 
-        this._authenticator = authenticator;
+        this.authenticator = authenticator;
     }
 
     /*
@@ -31,7 +31,7 @@ export class ApiClient {
      */
     public async getCompanyList(): Promise<Company[]> {
 
-        return await this._callApi('companies', 'GET') as Company[];
+        return await this.callApi('companies', 'GET') as Company[];
     }
 
     /*
@@ -39,7 +39,7 @@ export class ApiClient {
      */
     public async getCompanyTransactions(id: string): Promise<CompanyTransactions> {
 
-        return await this._callApi(`companies/${id}/transactions`, 'GET') as CompanyTransactions;
+        return await this.callApi(`companies/${id}/transactions`, 'GET') as CompanyTransactions;
     }
 
     /*
@@ -47,55 +47,55 @@ export class ApiClient {
      */
     public async getUserInfo(): Promise<ApiUserInfo> {
 
-        return await this._callApi('userinfo', 'GET') as ApiUserInfo;
+        return await this.callApi('userinfo', 'GET') as ApiUserInfo;
     }
 
     /*
      * A central method to get data from an API and handle 401 retries
      * This basic implementation only works if a single API request is in flight at a time
      */
-    private async _callApi(path: string, method: Method, dataToSend?: any): Promise<any> {
+    private async callApi(path: string, method: Method, dataToSend?: any): Promise<any> {
 
         // Get the full path
-        const url = `${this._apiBaseUrl}${path}`;
+        const url = `${this.apiBaseUrl}${path}`;
 
         // Get the access token
-        let token = await this._authenticator.getAccessToken();
+        let token = await this.authenticator.getAccessToken();
         if (!token) {
 
             // Trigger a login redirect if we cannot get an access token
             // Also end the API request in a controlled way, by throwing an error that is not rendered
-            await this._authenticator.startLogin(null);
+            await this.authenticator.startLogin(null);
             throw ErrorFactory.getFromLoginRequired();
         }
 
         try {
 
             // Call the API
-            return await this._callApiWithToken(url, method, dataToSend, token);
+            return await this.callApiWithToken(url, method, dataToSend, token);
 
         } catch (e1: any) {
 
             // Report Ajax errors if this is not a 401
             const error = e1 as UIError;
-            if (error.statusCode !== 401) {
+            if (error.getStatusCode() !== 401) {
                 throw error;
             }
 
             // If we received a 401 then try to refresh the access token
-            token = await this._authenticator.refreshAccessToken();
+            token = await this.authenticator.refreshAccessToken();
             if (!token) {
 
                 // Trigger a login redirect if we cannot refresh the access token
                 // Also end the API request in a controlled way, by throwing an error that is not rendered
-                await this._authenticator.startLogin(error);
+                await this.authenticator.startLogin(error);
                 throw ErrorFactory.getFromLoginRequired();
             }
 
             try {
 
                 // Call the API again
-                return await this._callApiWithToken(url, method, dataToSend, token);
+                return await this.callApiWithToken(url, method, dataToSend, token);
 
             } catch (e2: any) {
 
@@ -103,10 +103,10 @@ export class ApiClient {
                 // Present an error and ensure that the retry does a new top level login
                 // This enables recovery once the token configuration is fixed at the authorization server
                 const error = e2 as UIError;
-                if ((error.statusCode === 401 && error.errorCode === ErrorCodes.invalidToken) ||
-                    (error.statusCode === 403 && error.errorCode === ErrorCodes.insufficientScope)) {
+                if ((error.getStatusCode() === 401 && error.getErrorCode() === ErrorCodes.invalidToken) ||
+                    (error.getStatusCode() === 403 && error.getErrorCode() === ErrorCodes.insufficientScope)) {
 
-                    await this._authenticator.clearLoginState();
+                    await this.authenticator.clearLoginState();
                 }
 
                 throw error;
@@ -117,7 +117,7 @@ export class ApiClient {
     /*
      * Do the work of calling the API
      */
-    private async _callApiWithToken(
+    private async callApiWithToken(
         url: string,
         method: Method,
         dataToSend: any,
