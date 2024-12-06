@@ -17,17 +17,17 @@
     "clean": "rm -rf dist/*bundle*"
   },
   "dependencies": {
-    "axios": "^1.7.7",
+    "axios": "^1.7.9",
     "mustache": "^4.2.0",
     "oidc-client-ts": "^3.1.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.13.0",
+    "@eslint/js": "^9.15.0",
     "@types/mustache": "^4.2.5",
-    "eslint": "^9.13.0",
+    "eslint": "^9.15.0",
     "ts-loader": "^9.5.0",
-    "typescript": "^5.6.3",
-    "typescript-eslint": "^8.10.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.16.0",
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4",
     "webpack-merge": "^6.0.1"
