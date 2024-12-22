@@ -18,17 +18,6 @@ if [ ! -d 'node_modules' ]; then
 fi
 
 #
-# Download SSL certificates from a central repo if needed
-#
-if [ ! -d 'certs' ]; then
-  rm -rf ./resources
-  git clone https://github.com/gary-archer/oauth.developmentcertificates ./resources
-  rm -rf certs
-  mv ./resources/authsamples-dev ./certs
-  rm -rf ./resources
-fi
-
-#
 # Run code quality checks
 #
 npm run lint

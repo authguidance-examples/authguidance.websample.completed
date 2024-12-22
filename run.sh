@@ -25,6 +25,14 @@ case "$(uname -s)" in
 esac
 
 #
+# Create SSL development certificates if required
+#
+./certs/create.sh
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+#
 # Run the SPA and API
 #
 if [ "$PLATFORM" == 'MACOS' ]; then
