@@ -21,13 +21,17 @@ The SPA is a simple UI with some basic navigation between views, to render ficti
 
 ## Local Development Quick Start
 
-You must use custom development domains and add these DNS entries to your hosts file:
+To run the code sample locally you must configure some infrastructure before you run the code.
 
-```
+### Configure DNS and SSL
+
+Configure custom development domains by adding these DNS entries to your hosts file:
+
+```bash
 127.0.0.1 localhost www.authsamples-dev.com api.authsamples-dev.com
 ```
 
-Install OpenSSL if required, create a secrets folder, then create development certificates:
+Install OpenSSL if required, then create a folder in which to create development certificates for the SPA:
 
 ```bash
 export SECRETS_FOLDER='~/secrets'
@@ -35,13 +39,15 @@ mkdir ~/secrets
 ./certs/create.sh
 ```
 
-Next configure [Browser SSL Trust](https://github.com/gary-archer/oauth.blog/tree/master/public/posts/developer-ssl-setup.mdx#trust-a-root-certificate-in-browsers) for the SSL root certificate:
+Finally, configure [Browser SSL Trust](https://github.com/gary-archer/oauth.blog/tree/master/public/posts/developer-ssl-setup.mdx#trust-a-root-certificate-in-browsers) for the SSL root certificate at this location:
 
 ```text
-.certs/authsamples-dev.com.ca.crt
+./certs/authsamples-dev.ca.crt
 ```
 
-Then build and run the SPA and API:
+### Run the Code
+
+Ensure that Node.js 20+ is installed, then build and run the SPA and API:
 
 ```bash
 ./build.sh && ./run.sh
