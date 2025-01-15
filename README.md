@@ -34,8 +34,8 @@ Configure custom development domains by adding these DNS entries to your hosts f
 Install OpenSSL 3+ if required, create a secrets folder, then create development certificates:
 
 ```bash
-export SECRETS_FOLDER='~/secrets'
-mkdir ~/secrets
+export SECRETS_FOLDER="$HOME/secrets"
+mkdir "$SECRETS_FOLDER"
 ./certs/create.sh
 ```
 
