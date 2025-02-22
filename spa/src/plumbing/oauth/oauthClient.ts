@@ -9,7 +9,7 @@ import {OAuthUserInfo} from './oauthUserInfo';
 /*
  * The entry point for initiating login and token requests
  */
-export class Authenticator {
+export class OAuthClient {
 
     private readonly configuration: OAuthConfiguration;
     private readonly userManager: UserManager;

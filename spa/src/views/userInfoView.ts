@@ -1,7 +1,7 @@
 import mustache from 'mustache';
 import {ApiClient} from '../api/client/apiClient';
 import {ApiUserInfo} from '../api/entities/apiUserInfo';
-import {Authenticator} from '../plumbing/oauth/authenticator';
+import {OAuthClient} from '../plumbing/oauth/oauthClient';
 import {OAuthUserInfo} from '../plumbing/oauth/oauthUserInfo';
 import {DomUtils} from './domUtils';
 
@@ -10,10 +10,10 @@ import {DomUtils} from './domUtils';
  */
 export class UserInfoView {
 
-    public async load(authenticator: Authenticator, apiClient: ApiClient): Promise<void> {
+    public async load(oauthClient: OAuthClient, apiClient: ApiClient): Promise<void> {
 
         // Make the requests to get user info
-        const oauthUserInfo = await authenticator.getUserInfo();
+        const oauthUserInfo = await oauthClient.getUserInfo();
         const apiUserInfo = await apiClient.getUserInfo();
 
         if (oauthUserInfo && apiUserInfo) {

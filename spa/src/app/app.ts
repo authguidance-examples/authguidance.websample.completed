@@ -2,7 +2,7 @@ import {ApiClient} from '../api/client/apiClient';
 import {Configuration} from '../configuration/configuration';
 import {ConfigurationLoader} from '../configuration/configurationLoader';
 import {ErrorConsoleReporter} from '../plumbing/errors/errorConsoleReporter';
-import {Authenticator} from '../plumbing/oauth/authenticator';
+import {OAuthClient} from '../plumbing/oauth/oauthClient';
 import {HtmlStorageHelper} from '../plumbing/utilities/htmlStorageHelper';
 import {OidcLogger} from '../plumbing/utilities/oidcLogger';
 import {ErrorView} from '../views/errorView';
@@ -16,7 +16,7 @@ import {TitleView} from '../views/titleView';
 export class App {
 
     private configuration!: Configuration;
-    private authenticator!: Authenticator;
+    private oauthClient!: OAuthClient;
     private apiClient!: ApiClient;
     private oidcLogger: OidcLogger;
     private router!: Router;
@@ -49,7 +49,7 @@ export class App {
             await this.initialiseApp();
 
             // We must be prepared for page invocation to be an OAuth response
-            await this.authenticator.handleLoginResponse();
+            await this.oauthClient.handleLoginResponse();
 
             // Load the main view, which may trigger a login redirect
             await this.loadMainView();
@@ -94,10 +94,10 @@ export class App {
         this.configuration = await ConfigurationLoader.download('spa.config.json');
 
         // Initialise our OIDC Client wrapper
-        this.authenticator = new Authenticator(this.configuration.oauth);
+        this.oauthClient = new OAuthClient(this.configuration.oauth);
 
         // Create a client to reliably call the API
-        this.apiClient = new ApiClient(this.configuration.app.apiBaseUrl, this.authenticator);
+        this.apiClient = new ApiClient(this.configuration.app.apiBaseUrl, this.oauthClient);
 
         // Our simple router passes the API Client instance between views
         this.router = new Router(this.apiClient, this.errorView);
@@ -135,7 +135,7 @@ export class App {
      * Load API data for the user info fragment
      */
     private async loadUserInfo(): Promise<void> {
-        await this.titleView.loadUserInfo(this.authenticator, this.apiClient);
+        await this.titleView.loadUserInfo(this.oauthClient, this.apiClient);
     }
 
     /*
@@ -222,7 +222,7 @@ export class App {
 
         try {
             // Start the logout redirect
-            await this.authenticator.startLogout();
+            await this.oauthClient.startLogout();
 
         } catch (e: any) {
 
@@ -239,7 +239,7 @@ export class App {
 
         if (HtmlStorageHelper.isLoggedOutEvent(event)) {
 
-            this.authenticator.onExternalLogout();
+            this.oauthClient.onExternalLogout();
             location.hash = '#loggedout';
         }
     }
@@ -248,7 +248,7 @@ export class App {
      * Force a new access token to be retrieved
      */
     private async onExpireToken(): Promise<void> {
-        await this.authenticator.expireAccessToken();
+        await this.oauthClient.expireAccessToken();
     }
 
     /*

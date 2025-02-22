@@ -1,5 +1,5 @@
 import type {ApiClient} from '../api/client/apiClient';
-import {Authenticator} from '../plumbing/oauth/authenticator';
+import {OAuthClient} from '../plumbing/oauth/oauthClient';
 import {UserInfoView} from './userInfoView';
 import {DomUtils} from './domUtils';
 
@@ -37,8 +37,8 @@ export class TitleView {
     /*
      * Load the child user info view when requested
      */
-    public async loadUserInfo(authenticator: Authenticator, apiClient: ApiClient): Promise<void> {
-        await this.userInfoView.load(authenticator, apiClient);
+    public async loadUserInfo(oauthClient: OAuthClient, apiClient: ApiClient): Promise<void> {
+        await this.userInfoView.load(oauthClient, apiClient);
     }
 
     /*

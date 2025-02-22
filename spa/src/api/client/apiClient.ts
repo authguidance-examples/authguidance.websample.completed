@@ -2,7 +2,7 @@ import axios, {Method} from 'axios';
 import {ErrorCodes} from '../../plumbing/errors/errorCodes';
 import {ErrorFactory} from '../../plumbing/errors/errorFactory';
 import {UIError} from '../../plumbing/errors/uiError';
-import {Authenticator} from '../../plumbing/oauth/authenticator';
+import {OAuthClient} from '../../plumbing/oauth/oauthClient';
 import {AxiosUtils} from '../../plumbing/utilities/axiosUtils';
 import {ApiUserInfo} from '../entities/apiUserInfo';
 import {Company} from '../entities/company';
@@ -14,16 +14,16 @@ import {CompanyTransactions} from '../entities/companyTransactions';
 export class ApiClient {
 
     private readonly apiBaseUrl: string;
-    private readonly authenticator: Authenticator;
+    private readonly oauthClient: OAuthClient;
 
-    public constructor(apiBaseUrl: string, authenticator: Authenticator) {
+    public constructor(apiBaseUrl: string, oauthClient: OAuthClient) {
 
         this.apiBaseUrl = apiBaseUrl;
         if (!this.apiBaseUrl.endsWith('/')) {
             this.apiBaseUrl += '/';
         }
 
-        this.authenticator = authenticator;
+        this.oauthClient = oauthClient;
     }
 
     /*
@@ -60,12 +60,12 @@ export class ApiClient {
         const url = `${this.apiBaseUrl}${path}`;
 
         // Get the access token
-        let token = await this.authenticator.getAccessToken();
+        let token = await this.oauthClient.getAccessToken();
         if (!token) {
 
             // Trigger a login redirect if we cannot get an access token
             // Also end the API request in a controlled way, by throwing an error that is not rendered
-            await this.authenticator.startLogin(null);
+            await this.oauthClient.startLogin(null);
             throw ErrorFactory.getFromLoginRequired();
         }
 
@@ -83,12 +83,12 @@ export class ApiClient {
             }
 
             // If we received a 401 then try to refresh the access token
-            token = await this.authenticator.refreshAccessToken();
+            token = await this.oauthClient.refreshAccessToken();
             if (!token) {
 
                 // Trigger a login redirect if we cannot refresh the access token
                 // Also end the API request in a controlled way, by throwing an error that is not rendered
-                await this.authenticator.startLogin(error);
+                await this.oauthClient.startLogin(error);
                 throw ErrorFactory.getFromLoginRequired();
             }
 
@@ -106,7 +106,7 @@ export class ApiClient {
                 if ((error.getStatusCode() === 401 && error.getErrorCode() === ErrorCodes.invalidToken) ||
                     (error.getStatusCode() === 403 && error.getErrorCode() === ErrorCodes.insufficientScope)) {
 
-                    await this.authenticator.clearLoginState();
+                    await this.oauthClient.clearLoginState();
                 }
 
                 throw error;
